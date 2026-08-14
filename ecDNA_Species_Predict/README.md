@@ -4,7 +4,7 @@ This directory contains scripts used to create ecDNA species simulations
 and test/validate species deconvolution methods. 
 NOT meant to be used outside of methods development.
 
-To use, download https://github.com/kevinyu2/Cassiopeia_ecDNA_sim first
+To use, download and install https://github.com/kevinyu2/Cassiopeia_ecDNA_sim first
 
 ## Files
 
