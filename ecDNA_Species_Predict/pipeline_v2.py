@@ -139,6 +139,12 @@ parser.add_argument(
     help="How many cells on average to retrieve"
 )
 
+parser.add_argument(
+    "--add-noamp",
+    action="store_true",
+    help="Add some non amp?"
+)
+
 args = parser.parse_args()
 ##################################################################
 
@@ -427,7 +433,8 @@ for species_count in species_counts :
                     capacity = capacity,
                     sim_mult = sim_mult,
                     random_seed = np.random.randint(1, 1001),
-                    min_ecDNA_prop = min_ecDNA_prop
+                    min_ecDNA_prop = min_ecDNA_prop,
+                    add_non_ecDNA=args.add_noamp
                     )
                 sim.run_sim() 
                 i += 1   

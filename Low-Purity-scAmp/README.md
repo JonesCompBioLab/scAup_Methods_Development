@@ -22,6 +22,11 @@ implemented in https://github.com/JonesCompBioLab/scamp
 
 ```./vectors/*``` : ecDNA cell line data
 
+```simulation_results.py``` : generates results from ATAC-seq data (from ../ecDNA_Species_Predict/pipeline_v2.py)
+
+```simulation_plot.py``` : generates plots from ATAC-seq data after running simulation_results.py
+
+
 ## Example
 
 ```run_mix_match.py``` contains an example for how to use the class

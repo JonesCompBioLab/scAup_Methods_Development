@@ -93,7 +93,8 @@ class atacDataSimulation():
         capacity = None,
 
         # Throw error if does not hit a minimum ecDNA proportion
-        min_ecDNA_prop = 0
+        min_ecDNA_prop = 0,
+        add_non_ecDNA = False
     ):
 
     #############################################################
@@ -129,6 +130,7 @@ class atacDataSimulation():
         self.death_waiting_distribution_param = death_waiting_distribution_param
         self.death_waiting_distribution = np.random.exponential(death_waiting_distribution_param)
         self.min_ecDNA_prop = min_ecDNA_prop
+        self.add_non_ecDNA = add_non_ecDNA
 
     # Parameter to add different counts for each gene on each ecDNA (extra counts, so default is 0)
     def additional_count_func(self, length) :
@@ -182,6 +184,15 @@ class atacDataSimulation():
 
         counts = counts[ecDNA_species]
         counts.index = [f"cell_{i}" for i in range(len(counts))]
+
+        if self.add_non_ecDNA : 
+            for col in counts.columns:
+                pct = np.random.uniform(0, 100)  # random percentage for this column
+                n = int(len(counts) * pct / 100)
+
+                rows_to_zero = np.random.choice(counts.index, size=n, replace=False)
+                counts.loc[rows_to_zero, col] = 0
+
         counts.to_csv(speciesxgene_out, sep = '\t')
 
 
