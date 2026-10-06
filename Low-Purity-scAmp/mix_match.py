@@ -3,7 +3,7 @@ import numpy as np
 import pandas as pd
 from pathlib import Path
 import matplotlib.pyplot as plt
-from low_purity_methods import GMM_ecDNA_predict, NN_ecDNA_predict, KNN_ecDNA_predict
+from low_purity_methods import GMM_ecDNA_predict, NN_ecDNA_predict, KNN_ecDNA_predict, _DEV_GMM_ecDNA_predict_residual
 from NN_model import SCAMP
 
 
@@ -96,7 +96,7 @@ class mix_match_class():
     # Actually calculate the mixes
     # Returns: results, a dict with {"[METHOD]" : [0,1,1,0]} detailing ecDNA detection (1 for ecDNA)
     # Specify method arguments in methods
-    def calculate_mixes(self, methods = [('scAmp', 'NN', {}), ('GMM + NN', 'GMM', {}), ('KNN + NN', 'KNN', {})], show_hists = False) :
+    def calculate_mixes(self, methods = [('scAmp', 'NN', {}), ('GMM', 'GMM', {}), ('GMM + KNN', 'KNN', {})], show_hists = False) :
 
         result = {}
         for method in methods :
@@ -167,6 +167,9 @@ class mix_match_class():
                 if method == "GMM" :
                     print("Runing GMM")
                     pred = GMM_ecDNA_predict(self.model, final_input_list, **args)
+                elif method == "GMM_RESID" :
+                    print("Runing GMM (RESIDUAL)")
+                    pred = _DEV_GMM_ecDNA_predict_residual(self.model, final_input_list, **args)
                 elif method == "NN" :
                     print("Running NN")
                     pred = NN_ecDNA_predict(self.model, final_input_list, np.array(['TEST']), **args)
@@ -176,7 +179,8 @@ class mix_match_class():
                 else :
                     print(f"Unknown Method: {method}")
                 
-                result[method_name].append(int(pred))
+                ground_truth = int('ecDNA' in mix.keys())
+                result[method_name].append(int(pred) == ground_truth)
                 hist_text += f"{method_name} : {pred}\n"
 
 

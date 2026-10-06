@@ -48,7 +48,7 @@ def GMM_ecDNA_predict(model, input,
 
         if weight > 0.005 :
             samples = np.random.normal(mean, np.sqrt(var_scaled), size=1000).tolist()
-            if NN_ecDNA_predict(model, samples, genes, decision_rule) :
+            if NN_ecDNA_predict(model, samples, genes, decision_rule, max_percentile = 100) :
                 print('ecDNA')
                 return True
 
@@ -272,14 +272,14 @@ log_results : Whether or not to print results
 RETURNS
 Boolean, the predicted ecDNA status
 '''
-def NN_ecDNA_predict(model, input, genes = np.array(['GENE']), decision_rule = 0.5, log_results = False) :
+def NN_ecDNA_predict(model, input, genes = np.array(['GENE']), decision_rule = 0.5, log_results = False, min_copy_number=2.0, max_percentile=99.0) :
     input = np.array(input).reshape(-1, 1)
 
     X, genes_pass_filter = model.prepare_copy_numbers(
         input,
         genes,
-        min_copy_number=2.0,
-        max_percentile=99.0,
+        min_copy_number=min_copy_number,
+        max_percentile=max_percentile,
         filter_copy_number=2.5,
     )
 
