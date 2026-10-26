@@ -5,7 +5,7 @@ import re
 root = Path("./lps_results_v2_withnoamp/")
 
 methods = {
-    "scAmp": "NN_results.tsv",
+    "scAmp (Default)": "NN_results.tsv",
     "GMM + KNN": "KNN_results.tsv",
     "GMM (Unscaled)": "GMM_results.tsv",
     "GMM (Scaled)": "GMM_scaled_results.tsv",
@@ -68,7 +68,7 @@ all_data = all_data.rename(columns={
 
 
 # Individual dataframes if desired
-scamp = all_data[all_data["method"] == "scAmp"].copy()
+scamp = all_data[all_data["method"] == "scAmp (Default)"].copy()
 gmm_knn = all_data[all_data["method"] == "GMM + KNN"].copy()
 gmm = all_data[all_data["method"] == "GMM (Unscaled)"].copy()
 gmm_scaled = all_data[all_data["method"] == "GMM (Scaled)"].copy()
@@ -86,17 +86,21 @@ all_data["Method"] = all_data["method"]
 # Plot 1: Performance vs. ecDNA percentage
 # ============================================================
 
-# 2.5% bins
+# ============================================================
+# Plot 1: Performance vs. ecDNA percentage
+# ============================================================
+
 bin_width = 2.5
 
 all_data["ecDNA_bin"] = (
-    np.floor(all_data["ecDNA_percentage"] / bin_width) * bin_width + 1.25
+    np.floor(all_data["ecDNA_percentage"] / bin_width) * bin_width
+    + bin_width / 2
 )
 
 # Calculate fraction True and number of observations
 binned = (
     all_data
-    .groupby(["method", "Method", "ecDNA_bin"])
+    .groupby(["Method", "ecDNA_bin"])
     .agg(
         yes=("ecDNA", "sum"),
         n=("ecDNA", "size"),
@@ -104,7 +108,21 @@ binned = (
     .reset_index()
 )
 
-binned["percentage_yes"] = 100 * binned["yes"] / binned["n"]
+binned["percentage_yes"] = (
+    100 * binned["yes"] / binned["n"]
+)
+
+# Make sure points are sorted by x within each method
+binned = binned.sort_values(
+    ["Method", "ecDNA_bin"]
+)
+
+method_order = [
+    "GMM (Unscaled)",
+    "GMM (Scaled)",
+    "scAmp (Default)",
+    "GMM + KNN",
+]
 
 plt.figure(figsize=(12, 7))
 
@@ -113,16 +131,13 @@ ax = sns.lineplot(
     x="ecDNA_bin",
     y="percentage_yes",
     hue="Method",
-    hue_order=[
-        "GMM (Unscaled)",
-        "GMM (Scaled)",
-        "scAmp",
-        "KNN",
-    ],
+    hue_order=method_order,
     marker="o",
     markersize=0,
     alpha=0.5,
-    legend=False
+    estimator=None,
+    sort=False,
+    legend=False,
 )
 
 # Add points sized by number of observations
@@ -131,29 +146,27 @@ sns.scatterplot(
     x="ecDNA_bin",
     y="percentage_yes",
     hue="Method",
-    hue_order=[
-        "GMM (Unscaled)",
-        "GMM (Scaled)",
-        "scAmp",
-        "GMM + KNN",
-    ],
+    hue_order=method_order,
     size="n",
     sizes=(30, 250),
     ax=ax,
     alpha=0.5,
-    legend="brief"
+    legend="brief",
 )
 
-# Explicitly create/get legend
+# Explicitly create legend
 legend = ax.legend(
     title="Method",
     fontsize=14,
-    title_fontsize=16
+    title_fontsize=16,
 )
 
 plt.xlabel("ecDNA percentage", fontsize=16)
 plt.ylabel("% classified as ecDNA", fontsize=16)
-plt.title("ecDNA Detection Methods vs. ecDNA percentage", fontsize=20)
+plt.title(
+    "ecDNA Detection Methods vs. ecDNA percentage",
+    fontsize=20
+)
 
 plt.xticks(fontsize=14)
 plt.yticks(fontsize=14)
@@ -162,9 +175,12 @@ plt.ylim(0, 100)
 plt.grid(alpha=0.25)
 plt.tight_layout()
 
-plt.savefig('./plots/ecDNA_percent_sim.pdf')
-plt.close()
+plt.savefig(
+    "./plots/ecDNA_percent_sim.pdf",
+    bbox_inches="tight"
+)
 
+plt.close()
 
 
 
@@ -211,7 +227,7 @@ depth_labels = depth_unique
 method_order = [
     "GMM (Unscaled)",
     "GMM (Scaled)",
-    "scAmp",
+    "scAmp (Default)",
     "GMM + KNN",
 ]
 
@@ -421,7 +437,7 @@ plt.close()
 method_order = [
     "GMM (Unscaled)",
     "GMM (Scaled)",
-    "scAmp",
+    "scAmp (Default)",
     "GMM + KNN",
 ]
 
@@ -698,7 +714,6 @@ plot_parameter_heatmap(
 )
 
 
-exit(0)
 
 plt.figure(figsize=(8, 5))
 
@@ -711,7 +726,7 @@ sns.boxplot(
 plt.xlabel("")
 plt.title("Average Runtime of Methods")
 plt.ylabel("Runtime (s)")
+plt.yscale('log')
 plt.tight_layout()
 # plt.show()
 plt.savefig('./plots/runtime_sim.pdf')
-plt.close()

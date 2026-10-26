@@ -24,7 +24,7 @@ class atacDataSimulation():
 
         ###################################################
         # ecDNA SPECIES SETTINGS
-        ################################################### 
+        ###################################################
         # Number of initial copies (int array)
         initial_copy_number_array,
 
@@ -77,9 +77,9 @@ class atacDataSimulation():
         num_cells = 1000,
 
         # If venn:
-        # give a dict with correlation coefficients for each 
+        # give a dict with correlation coefficients for each
         # i.e. {(0,1) : 0.5, (0,1,2) : 0.2}
-        coeffs = {}, 
+        coeffs = {},
 
         # If coefficient :
         # How much of the copies are split purely based off of cosegregation
@@ -143,7 +143,7 @@ class atacDataSimulation():
                 copies[i] = self.change_distribution(self.change_distribution_param)
 
         return copies
-    
+
     def run_sim(self) :
         gene_counts_save = copy.deepcopy(self.gene_counts)
         gene_overlap_save = copy.deepcopy(self.gene_overlap)
@@ -185,15 +185,6 @@ class atacDataSimulation():
         counts = counts[ecDNA_species]
         counts.index = [f"cell_{i}" for i in range(len(counts))]
 
-        if self.add_non_ecDNA : 
-            for col in counts.columns:
-                pct = np.random.uniform(0, 100)  # random percentage for this column
-                n = int(len(counts) * pct / 100)
-
-                rows_to_zero = np.random.choice(counts.index, size=n, replace=False)
-                counts.loc[rows_to_zero, col] = 0
-
-        counts.to_csv(speciesxgene_out, sep = '\t')
 
 
         # Tracks how much each ecDNA is present
@@ -204,6 +195,18 @@ class atacDataSimulation():
                 raise ecDNABirthDeathSimulatorError("One or more ecDNA species went extinct")
             if species_percentages[species] < self.min_ecDNA_prop * 100 :
                 raise ecDNABirthDeathSimulatorError(f"One or more ecDNA species underneath provided percentage cutoff {self.min_ecDNA_prop }")
+
+
+        if self.add_non_ecDNA :
+            for col in counts.columns:
+                pct = np.random.uniform(0, 100)  # random percentage for this column
+
+                n = int(len(counts) * (pct / 100))
+
+                rows_to_zero = np.random.choice(counts.index, size=n, replace=False)
+                counts.loc[rows_to_zero, col] = 0
+
+        counts.to_csv(speciesxgene_out, sep = '\t')
 
 
         species_total_percentage = (counts[ecDNA_species] > 0).any(axis=1).mean() * 100

@@ -197,7 +197,7 @@ num_cells_mean = args.num_cells
 ##################################################################
 
 # "coefficient", "venn", "real", or "simulation"
-cosegregation_type = args.coseg_type 
+cosegregation_type = args.coseg_type
 
 # For simulation, average chance to combine (using beta distribution). For venn, is 1 - amount that is guaranteed to go into each
 cosegregation_strengths = [0,0.2,0.4,0.6,0.8]
@@ -318,24 +318,24 @@ def generate_coseg_matrix(matrix_dim, mean, allow_self_combine, const_comb, test
         matrix_final[0][1] = matrix[0][1]
         matrix_final[1][0] = matrix[1][0]
         return matrix_final
-    
+
     return matrix
 
 # Gets a proportion of genes from each species, and randomly assigns those to venn diagram intersections
 def generate_gene_overlap(counts, overlap_prop):
     n = len(counts)
     overlap_dict = defaultdict(int)
-    
+
     # Precompute all possible intersections of size >= 2
     all_intersections = []
     for r in range(2, n + 1):
         all_intersections.extend(itertools.combinations(range(n), r))
-    
+
     num_overlap_dict = {}
     for i, count in enumerate(counts):
         # Take min because we don't want to use all of them, otherwise it's just one ecDNA really
         num_overlap_dict[i] = min(count - 1, int(math.ceil(count * overlap_prop)))
-    
+
     done = set()
 
     for i, count in enumerate(counts):
@@ -343,7 +343,7 @@ def generate_gene_overlap(counts, overlap_prop):
         num_overlap = num_overlap_dict[i]
         # Only look at intersections from that set
         valid_intersections = [comb for comb in all_intersections if i in comb]
-        
+
         # Assign each overlapping gene randomly
         for _ in range(num_overlap):
             # Cleanse valid intersections
@@ -352,12 +352,12 @@ def generate_gene_overlap(counts, overlap_prop):
                 for species_no in done :
                     if species_no in intersect :
                         to_remove.append(intersect_idx)
-                        break 
+                        break
 
             # remove duplicates and delete safely (reverse order)
             for idx in sorted(set(to_remove), reverse=True):
                 del valid_intersections[idx]
-                
+
             if len(valid_intersections) > 0 :
 
                 chosen = random.choice(valid_intersections)
@@ -366,7 +366,7 @@ def generate_gene_overlap(counts, overlap_prop):
                     num_overlap_dict[species_no] = num_overlap_dict[species_no] - 1
                     if num_overlap_dict[species_no] == 0 :
                         done.add(species_no)
-    
+
     return dict(overlap_dict)
 ##############################################################
 
@@ -436,8 +436,8 @@ for species_count in species_counts :
                     min_ecDNA_prop = min_ecDNA_prop,
                     add_non_ecDNA=args.add_noamp
                     )
-                sim.run_sim() 
-                i += 1   
+                sim.run_sim()
+                i += 1
 
                 # Free memory
                 del sim

@@ -18,11 +18,11 @@ def create_mix_noamp(NO_ITER, max_ecDNA = 1000, total_cells = 4000) :
             mix['ecDNA'] = [(ecDNA_num, 0)]
         if Noamp_num > 0 :
             mix['Noamp'] = [(Noamp_num, 0)]
-        
+
         for i in range(NO_ITER) :
             mixes.append(mix)
 
-        ecDNA_num_float += total_cells/100 
+        ecDNA_num_float += total_cells/100
     return mixes
 
 # Remaining are all HSR
@@ -38,17 +38,17 @@ def create_mix_HSR(NO_ITER, max_ecDNA = 800, total_cells = 4000) :
             mix['ecDNA'] = [(ecDNA_num, 0)]
         if HSR_num > 0 :
             mix['HSR'] = [(HSR_num, 0)]
-        
+
         for it in range(NO_ITER) :
             mixes.append(mix)
-        ecDNA_num_float += total_cells/100 
+        ecDNA_num_float += total_cells/100
 
     return mixes
 
 # Half HSR, half Noamp
 def create_mix_HSR_noamp(NO_ITER, max_ecDNA = 800, total_cells = 4000) :
     mixes = []
-    
+
     ecDNA_num_float = 0.0
     while ecDNA_num_float <= max_ecDNA :
         ecDNA_num = round(ecDNA_num_float)
@@ -64,7 +64,7 @@ def create_mix_HSR_noamp(NO_ITER, max_ecDNA = 800, total_cells = 4000) :
             mix['HSR'] = [(HSR_num, 0)]
         for it in range(NO_ITER) :
             mixes.append(mix)
-        ecDNA_num_float += total_cells/100 
+        ecDNA_num_float += total_cells/100
 
     return mixes
 
@@ -80,12 +80,12 @@ def create_mix_HSR_p10(NO_ITER, max_ecDNA = 1600, total_cells = 4000) :
 
         if ecDNA_num > 0 :
             mix['ecDNA'] = [(ecDNA_num, 0)]
-    
+
         if HSR_num > 0 :
             mix['HSR'] = [(HSR_num, 10)]
         for it in range(NO_ITER) :
             mixes.append(mix)
-        ecDNA_num_float += total_cells/100 
+        ecDNA_num_float += total_cells/100
 
     return mixes
 
@@ -101,12 +101,12 @@ def create_HSR_noamp(NO_ITER, max_HSR = 4000, total_cells = 4000) :
 
         if HSR_num > 0 :
             mix['HSR'] = [(HSR_num, 0)]
-    
+
         if Noamp_num > 0 :
             mix['Noamp'] = [(Noamp_num, 0)]
         for it in range(NO_ITER) :
             mixes.append(mix)
-        HSR_num_float += total_cells/100 
+        HSR_num_float += total_cells/100
 
     return mixes
 
@@ -128,16 +128,16 @@ def create_two_HSR(NO_ITER, HSR_1 = 2000, HSR_2 = 2000) :
 NO_ITER = 20
 methods = [('GMM (Unscaled)', 'GMM', {"var_scale" : 0}), ('GMM (Scaled)', 'GMM', {}), ('scAmp', 'NN', {}), ('GMM+KNN', 'KNN', {})]
 
-ecDNA_file = "./vectors/COLO_MYC_ecDNA.tsv"
-HSR_file = "./vectors/COLO_MYC_HSR.tsv"
-Noamp_file = "./vectors/COLO_GAPDH_Noamp.tsv"
-save_start = "paper_small_"
+ecDNA_file = "./vectors/GBM39ec_EGFR_ecDNA.tsv"
+HSR_file = "./vectors/GBM39HSR_EGFR_HSR.tsv"
+Noamp_file = "./vectors/GBM39HSR_GAPDH_Noamp.tsv"
+save_start = "paper_gbm_small3_"
 
-# {'Method' : (CREATE MIX FUNCTION, {ARGS}), 
-# 'Name' : PLOT NAME, 
+# {'Method' : (CREATE MIX FUNCTION, {ARGS}),
+# 'Name' : PLOT NAME,
 # 'Save' : PLOT SAVE LOCATION,
-# 'ecDNA' : ecDNA LOCATION, 
-# 'HSR' : HSR LOCATION, 
+# 'ecDNA' : ecDNA LOCATION,
+# 'HSR' : HSR LOCATION,
 # 'Noamp' : NOAMP LOCATION}
 settings_list = [
                 #   {'Method' : (create_mix_HSR, {"total_cells" : 1000, "max_ecDNA" : 300}),
@@ -153,7 +153,7 @@ settings_list = [
                 #   'ecDNA' : ecDNA_file,
                 #   'HSR' : HSR_file,
                 #   'Noamp' : Noamp_file}
-                #   ,
+                #  ,
                 #   {'Method' : (create_mix_HSR, {"total_cells" : 800, "max_ecDNA" : 300}),
                 #   'Name' : "ecDNA vs HSR (800 Cells)",
                 #   'Save' : f"./plots/{save_start}ecDNA_HSR_800.pdf",
@@ -182,47 +182,47 @@ settings_list = [
                 #   'HSR' : HSR_file,
                 #   'Noamp' : Noamp_file}
                 #   ,
-                  {'Method' : (create_HSR_noamp, {}),
-                  'Name' : "HSR vs Noamp (4000 Cells)",
-                  'Save' : f"./plots/{save_start}HSR_Noamp_4000.pdf",
-                  'ecDNA' : ecDNA_file,
-                  'HSR' : HSR_file,
-                  'Noamp' : Noamp_file}
-                  ,
-                  {'Method' : (create_two_HSR, {}),
-                  'Name' : "Two HSR Shifting (4000 Cells)",
-                  'Save' : f"./plots/{save_start}two_HSR_4000.pdf",
-                  'ecDNA' : ecDNA_file,
-                  'HSR' : HSR_file,
-                  'Noamp' : Noamp_file}
-                  ,
+                #   {'Method' : (create_HSR_noamp, {}),
+                #   'Name' : "HSR vs Noamp (4000 Cells)",
+                #   'Save' : f"./plots/{save_start}HSR_Noamp_4000.pdf",
+                #   'ecDNA' : ecDNA_file,
+                #   'HSR' : HSR_file,
+                #   'Noamp' : Noamp_file}
+                #   ,
+                #   {'Method' : (create_two_HSR, {}),
+                #   'Name' : "Two HSR Shifting (4000 Cells)",
+                #   'Save' : f"./plots/{save_start}two_HSR_4000.pdf",
+                #   'ecDNA' : ecDNA_file,
+                #   'HSR' : HSR_file,
+                #   'Noamp' : Noamp_file}
+                #   ,
                   {'Method' : (create_mix_noamp, {}),
-                  'Name' : "ecDNA vs Noamp (4000 Cells)",
+                  'Name' : "GBM39 EGFR ecDNA vs Noamp (4000 Cells)",
                   'Save' : f"./plots/{save_start}ecDNA_noAmp_4000.pdf",
                   'ecDNA' : ecDNA_file,
                   'HSR' : HSR_file,
                   'Noamp' : Noamp_file}
                   ,
                   {'Method' : (create_mix_HSR, {}),
-                  'Name' : "ecDNA vs HSR (4000 Cells)",
+                  'Name' : "GBM39 EGFR ecDNA vs HSR (4000 Cells)",
                   'Save' : f"./plots/{save_start}ecDNA_HSR_4000.pdf",
                   'ecDNA' : ecDNA_file,
                   'HSR' : HSR_file,
                   'Noamp' : Noamp_file}
-                  ,
-                  {'Method' : (create_mix_HSR_noamp, {}),
-                  'Name' : "ecDNA vs Half HSR, Half Noamp (4000 Cells)",
-                  'Save' : f"./plots/{save_start}ecDNA_half_4000.pdf",
-                  'ecDNA' : ecDNA_file,
-                  'HSR' : HSR_file,
-                  'Noamp' : Noamp_file}
-                  ,
-                  {'Method' : (create_mix_HSR, {}),
-                  'Name' : "ecDNA vs HSR + 10 (4000 Cells)",
-                  'Save' : f"./plots/{save_start}ecDNA_HSRp10_4000.pdf",
-                  'ecDNA' : ecDNA_file,
-                  'HSR' : HSR_file,
-                  'Noamp' : Noamp_file}
+                #   ,
+                #   {'Method' : (create_mix_HSR_noamp, {}),
+                #   'Name' : "ecDNA vs Half HSR, Half Noamp (4000 Cells)",
+                #   'Save' : f"./plots/{save_start}ecDNA_half_4000.pdf",
+                #   'ecDNA' : ecDNA_file,
+                #   'HSR' : HSR_file,
+                #   'Noamp' : Noamp_file}
+                #   ,
+                #   {'Method' : (create_mix_HSR, {}),
+                #   'Name' : "ecDNA vs HSR + 10 (4000 Cells)",
+                #   'Save' : f"./plots/{save_start}ecDNA_HSRp10_4000.pdf",
+                #   'ecDNA' : ecDNA_file,
+                #   'HSR' : HSR_file,
+                #   'Noamp' : Noamp_file}
                   ]
 ##################################################
 
@@ -257,4 +257,3 @@ for settings in settings_list :
     plt.tight_layout()
     plt.savefig(settings['Save'])
     plt.close()
-

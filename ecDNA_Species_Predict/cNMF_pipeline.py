@@ -82,7 +82,7 @@ args = parser.parse_args()
 ###############################################################
 
 # Z score cutoff for inclusion of a gene in an ecDNA
-score_cutoff = 1.5
+score_cutoff = 0.5
 # Number of NMFs to run
 n_iter = args.iter
 
@@ -156,7 +156,7 @@ def cNMF_run(cellbygene_df, out_dir, out_name, cellbygene, cellbyspecies, metada
             cnmf_obj_1.factorize(worker_i=0, total_workers=1)
             cnmf_obj_1.combine()
 
-            
+
             norm_counts = sc.read(cnmf_obj_1.paths['normalized_counts'])
 
             with np.load(cnmf_obj_1.paths['merged_spectra']%1, allow_pickle=True) as f:
@@ -189,7 +189,7 @@ def cNMF_run(cellbygene_df, out_dir, out_name, cellbygene, cellbyspecies, metada
             if count < max_count :
                 row_k = k_df[k_df["k"] == count].iloc[0]
                 row_kp1 = k_df[k_df["k"] == count+ 1].iloc[0]
-                k_df.loc[k_df["k"] == count, "prediction_ratio"] = ((row_k['normalized_prediction_error'] + 1e-5) / (row_kp1['normalized_prediction_error'] + 1e-5)) - 1 
+                k_df.loc[k_df["k"] == count, "prediction_ratio"] = ((row_k['normalized_prediction_error'] + 1e-5) / (row_kp1['normalized_prediction_error'] + 1e-5)) - 1
 
 
         k_df['score'] = k_df['silhouette'] - error_w * k_df['prediction_ratio']
@@ -204,15 +204,15 @@ def cNMF_run(cellbygene_df, out_dir, out_name, cellbygene, cellbyspecies, metada
 
 
     if num_ecDNA != 1 :
-        cnmf_obj.consensus(k=num_ecDNA, density_threshold=density_threshold)
+        cnmf_obj.consensus(k=num_ecDNA, density_threshold=density_threshold, close_clustergram_fig=True, refit_usage = False)
         usage_df, spectra_scores, spectra_tpm, top_genes = cnmf_obj.load_results(K=num_ecDNA, density_threshold=density_threshold, norm_usage = False)
     else :
-        cnmf_obj_1.consensus(k=num_ecDNA, density_threshold=density_threshold)
+        cnmf_obj_1.consensus(k=num_ecDNA, density_threshold=density_threshold, close_clustergram_fig=True, refit_usage = False)
         usage_df, spectra_scores, spectra_tpm, top_genes = cnmf_obj_1.load_results(K=1, density_threshold=density_threshold, norm_usage = False)
 
 
     rf_usages = pd.read_csv(f"{out_dir}/{out_name}/{out_name}.usages.k_{num_ecDNA}.dt_{str(density_threshold).replace('.', '_')}.consensus.txt", sep = '\t', index_col = 0)
-    
+
     Y = cellbygene_df.values
     unnormalized_spectra_scores = efficient_ols_all_cols(rf_usages.values, Y, normalize_y = False)
 
@@ -239,7 +239,7 @@ def cNMF_run(cellbygene_df, out_dir, out_name, cellbygene, cellbyspecies, metada
 
     unnormalized_spectra_scores = pd.DataFrame(unnormalized_spectra_scores.T, columns=rf_usages.columns, index=cellbygene_df.columns)
     losses = pd.DataFrame(losses.T, columns=rf_usages.columns, index=cellbygene_df.columns)
-      
+
     # Parse metadata
     gt = defaultdict(list)
     with open(metadata_file, "r") as f:
@@ -262,6 +262,7 @@ def cNMF_run(cellbygene_df, out_dir, out_name, cellbygene, cellbyspecies, metada
     losses.columns = [f"pred_ecDNA_{col}" for col in losses.columns]
     spectra_scores.columns = [f"pred_ecDNA_{col}" for col in spectra_scores.columns]
     spectra_tpm.columns = [f"pred_ecDNA_{col}" for col in spectra_tpm.columns]
+
 
     ecDNA_species = spectra_scores.columns
     observed = {}
@@ -288,6 +289,7 @@ def cNMF_run(cellbygene_df, out_dir, out_name, cellbygene, cellbyspecies, metada
             else :
                 max_species_gene_value[i] = row[species]
                 max_species_gene[i] = species
+
 
     print("Distributed genes initially")
 
@@ -333,7 +335,7 @@ def cNMF_run(cellbygene_df, out_dir, out_name, cellbygene, cellbyspecies, metada
 
     # Run NNLS optimization to find better usage matrix
     def NNLS(cellbygene_df, spectra_tpm) :
-        X = cellbygene_df.values 
+        X = cellbygene_df.values
         H = spectra_tpm.values.T
 
         W = np.zeros((X.shape[0], H.shape[0]))
@@ -428,7 +430,7 @@ def cNMF_run(cellbygene_df, out_dir, out_name, cellbygene, cellbyspecies, metada
         for gene in gene_list :
             gene_counts.loc[species, gene] = np.round(spectra_consensus.loc[species, gene]/min_val)
 
-    
+
     cellxspecies_df = pd.read_csv(cellbyspecies, sep = '\t', index_col = 0)
     usage_df.rename(columns=mapping, inplace=True)
     total_error = 0
@@ -556,5 +558,4 @@ for spec_dir in Path(run_dir).glob("*"):
 (pd.DataFrame(run_jaccard_list)).to_csv(run_jaccard_file, index = None, sep = '\t')
 (pd.DataFrame(run_count_err_list)).to_csv(run_count_err_file, index = None, sep = '\t')
 (pd.DataFrame(run_time_list)).to_csv(run_time_file, index = None, sep = '\t')
-
 
